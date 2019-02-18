@@ -101,6 +101,10 @@ func getConfigDrivePath(metadataVersion string) string {
 	return fmt.Sprintf(configDrivePathTemplate, metadataVersion)
 }
 
+func GetDefaultMetadataSearchOrder() string {
+	return fmt.Sprintf("%s,%s", MetadataID, ConfigDriveID)
+}
+
 func GetFromConfigDrive(metadataVersion string) (*Metadata, error) {
 	// Try to read instance UUID from config drive.
 	dev := "/dev/disk/by-label/" + configDriveLabel
@@ -204,4 +208,22 @@ func Get(order string) (*Metadata, error) {
 		metadataCache = md
 	}
 	return metadataCache, nil
+}
+
+// GetInstanceID from metadata service
+func GetInstanceID(order string) (string, error) {
+	md, err := Get(order)
+	if err != nil {
+		return "", err
+	}
+	return md.UUID, nil
+}
+
+// GetAvailabilityZone returns zone from metadata service
+func GetAvailabilityZone(order string) (string, error) {
+	md, err := Get(order)
+	if err != nil {
+		return "", err
+	}
+	return md.AvailabilityZone, nil
 }

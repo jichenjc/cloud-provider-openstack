@@ -26,7 +26,7 @@ import (
 	"k8s.io/klog"
 
 	"k8s.io/cloud-provider-openstack/pkg/csi/cinder/mount"
-	"k8s.io/cloud-provider-openstack/pkg/csi/cinder/openstack"
+	"k8s.io/cloud-provider-openstack/pkg/util/metadata"
 )
 
 type nodeServer struct {
@@ -170,12 +170,7 @@ func getNodeIDMountProvider() (string, error) {
 }
 
 func getNodeIDMetdataService() (string, error) {
-	m, err := openstack.GetMetadataProvider()
-	if err != nil {
-		klog.V(3).Infof("Failed to GetMetadataProvider: %v", err)
-		return "", err
-	}
-	nodeID, err := m.GetInstanceID()
+	nodeID, err := metadata.GetInstanceID(metadata.GetDefaultMetadataSearchOrder())
 	if err != nil {
 		return "", err
 	}
@@ -183,12 +178,7 @@ func getNodeIDMetdataService() (string, error) {
 }
 
 func getAvailabilityZoneMetadataService() (string, error) {
-	m, err := openstack.GetMetadataProvider()
-	if err != nil {
-		klog.V(3).Infof("Failed to GetMetadataProvider: %v", err)
-		return "", err
-	}
-	zone, err := m.GetAvailabilityZone()
+	zone, err := metadata.GetAvailabilityZone(metadata.GetDefaultMetadataSearchOrder())
 	if err != nil {
 		return "", err
 	}

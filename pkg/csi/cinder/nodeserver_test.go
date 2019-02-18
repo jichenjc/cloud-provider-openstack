@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"k8s.io/cloud-provider-openstack/pkg/csi/cinder/mount"
-	"k8s.io/cloud-provider-openstack/pkg/csi/cinder/openstack"
+	"k8s.io/cloud-provider-openstack/pkg/util/metadata"
 )
 
 var fakeNs *nodeServer
@@ -40,6 +40,12 @@ func init() {
 	}
 }
 
+var FakeMetadata = metadata.Metadata{
+	UUID:             "83679162-1378-4288-a2d4-70e13ec132aa",
+	Name:             "test",
+	AvailabilityZone: "testaz",
+}
+
 // Test NodeGetInfo
 func TestNodeGetInfo(t *testing.T) {
 
@@ -49,9 +55,8 @@ func TestNodeGetInfo(t *testing.T) {
 	mmock.On("GetInstanceID").Return(fakeNodeID, nil)
 	mount.MInstance = mmock
 
-	osmock := new(openstack.OpenStackMock)
-	osmock.On("GetAvailabilityZone").Return(fakeAvailability, nil)
-	openstack.MetadataService = osmock
+	metadata.Set(&FakeMetadata)
+	defer metadata.Clear()
 
 	// Init assert
 	assert := assert.New(t)

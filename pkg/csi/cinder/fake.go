@@ -33,7 +33,7 @@ var fakeSnapshotName = "CSISnapshotName"
 var fakeSnapshotID = "261a8b81-3660-43e5-bab8-6470b65ee4e8"
 var fakeCapacityGiB = 1
 var fakeVolType = ""
-var fakeAvailability = "nova"
+var fakeAvailability = "testaz"
 var fakeDevicePath = "/dev/xxx"
 var fakeTargetPath = "/mnt/cinder"
 
