@@ -123,6 +123,10 @@ func (cs *controllerServer) DeleteVolume(ctx context.Context, req *csi.DeleteVol
 	}
 	err := cs.Cloud.DeleteVolume(volID)
 	if err != nil {
+		if cpoerrors.IsNotFound(err) {
+			klog.V(3).Infof("Volume %s is already deleted.", volID)
+			return &csi.DeleteVolumeResponse{}, nil
+		}
 		klog.V(3).Infof("Failed to DeleteVolume: %v", err)
 		return nil, err
 	}
@@ -211,12 +215,18 @@ func (cs *controllerServer) ControllerUnpublishVolume(ctx context.Context, req *
 	err = cs.Cloud.DetachVolume(instanceID, volumeID)
 	if err != nil {
 		klog.V(3).Infof("Failed to DetachVolume: %v", err)
+		if cpoerrors.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "ControllerUnpublishVolume Volume not found")
+		}
 		return nil, err
 	}
 
 	err = cs.Cloud.WaitDiskDetached(instanceID, volumeID)
 	if err != nil {
 		klog.V(3).Infof("Failed to WaitDiskDetached: %v", err)
+		if cpoerrors.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "ControllerUnpublishVolume Volume not found")
+		}
 		return nil, err
 	}
 
@@ -325,6 +335,10 @@ func (cs *controllerServer) DeleteSnapshot(ctx context.Context, req *csi.DeleteS
 	// Delegate the check to openstack itself
 	err := cs.Cloud.DeleteSnapshot(id)
 	if err != nil {
+		if cpoerrors.IsNotFound(err) {
+			klog.V(3).Infof("Snapshot %s is already deleted.", id)
+			return &csi.DeleteSnapshotResponse{}, nil
+		}
 		klog.V(3).Infof("Failed to Delete snapshot: %v", err)
 		return nil, err
 	}
