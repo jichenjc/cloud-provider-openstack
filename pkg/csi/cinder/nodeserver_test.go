@@ -401,6 +401,10 @@ func TestNodeGetVolumeStatsBlock(t *testing.T) {
 		Usage: []*csi.VolumeUsage{
 			{Total: FakeBlockDeviceStats.TotalBytes, Unit: csi.VolumeUsage_BYTES},
 		},
+		VolumeCondition: &csi.VolumeCondition{
+			Abnormal: true,
+			Message:  "available",
+		},
 	}
 
 	blockRes, err := fakeNs.NodeGetVolumeStats(FakeCtx, fakeReq)
@@ -439,6 +443,10 @@ func TestNodeGetVolumeStatsFs(t *testing.T) {
 		Usage: []*csi.VolumeUsage{
 			{Total: FakeFsStats.TotalBytes, Available: FakeFsStats.AvailableBytes, Used: FakeFsStats.UsedBytes, Unit: csi.VolumeUsage_BYTES},
 			{Total: FakeFsStats.TotalInodes, Available: FakeFsStats.AvailableInodes, Used: FakeFsStats.UsedInodes, Unit: csi.VolumeUsage_INODES},
+		},
+		VolumeCondition: &csi.VolumeCondition{
+			Abnormal: true,
+			Message:  "available",
 		},
 	}
 

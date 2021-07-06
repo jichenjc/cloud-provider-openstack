@@ -85,6 +85,7 @@ func NewDriver(endpoint, cluster string) *CinderDriver {
 			csi.ControllerServiceCapability_RPC_CLONE_VOLUME,
 			csi.ControllerServiceCapability_RPC_LIST_VOLUMES_PUBLISHED_NODES,
 			csi.ControllerServiceCapability_RPC_GET_VOLUME,
+			csi.ControllerServiceCapability_RPC_VOLUME_CONDITION,
 		})
 	d.AddVolumeCapabilityAccessModes([]csi.VolumeCapability_AccessMode_Mode{csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER})
 
@@ -93,6 +94,7 @@ func NewDriver(endpoint, cluster string) *CinderDriver {
 			csi.NodeServiceCapability_RPC_STAGE_UNSTAGE_VOLUME,
 			csi.NodeServiceCapability_RPC_EXPAND_VOLUME,
 			csi.NodeServiceCapability_RPC_GET_VOLUME_STATS,
+			csi.NodeServiceCapability_RPC_VOLUME_CONDITION,
 		})
 
 	return d

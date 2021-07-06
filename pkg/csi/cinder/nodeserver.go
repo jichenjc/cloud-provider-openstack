@@ -518,6 +518,14 @@ func (ns *nodeServer) NodeGetVolumeStats(_ context.Context, req *csi.NodeGetVolu
 		return nil, status.Errorf(codes.Internal, "failed to get stats by path: %s", err)
 	}
 
+	volume, err := ns.Cloud.GetVolume(volumeID)
+	if err != nil {
+		if cpoerrors.IsNotFound(err) {
+			return nil, status.Errorf(codes.NotFound, "Volume %s not found", volumeID)
+		}
+		return nil, status.Error(codes.Internal, fmt.Sprintf("NodeGetVolumeStats failed with error %v", err))
+	}
+
 	if stats.Block {
 		return &csi.NodeGetVolumeStatsResponse{
 			Usage: []*csi.VolumeUsage{
@@ -526,6 +534,10 @@ func (ns *nodeServer) NodeGetVolumeStats(_ context.Context, req *csi.NodeGetVolu
 					Unit:  csi.VolumeUsage_BYTES,
 				},
 			},
+			VolumeCondition: &csi.VolumeCondition{
+				Abnormal: openstack.IsAbnormalVolume(volume.Status),
+				Message:  volume.Status,
+			},
 		}, nil
 	}
 
@@ -533,6 +545,10 @@ func (ns *nodeServer) NodeGetVolumeStats(_ context.Context, req *csi.NodeGetVolu
 		Usage: []*csi.VolumeUsage{
 			{Total: stats.TotalBytes, Available: stats.AvailableBytes, Used: stats.UsedBytes, Unit: csi.VolumeUsage_BYTES},
 			{Total: stats.TotalInodes, Available: stats.AvailableInodes, Used: stats.UsedInodes, Unit: csi.VolumeUsage_INODES},
+		},
+		VolumeCondition: &csi.VolumeCondition{
+			Abnormal: openstack.IsAbnormalVolume(volume.Status),
+			Message:  volume.Status,
 		},
 	}, nil
 }
